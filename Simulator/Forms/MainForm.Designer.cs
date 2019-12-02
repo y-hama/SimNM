@@ -44,7 +44,10 @@
             this.Canvus.Size = new System.Drawing.Size(500, 500);
             this.Canvus.TabIndex = 0;
             this.Canvus.TabStop = false;
+            this.Canvus.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Canvus_MouseClick);
+            this.Canvus.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Canvus_MouseDown);
             this.Canvus.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Canvus_MouseMove);
+            this.Canvus.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Canvus_MouseUp);
             // 
             // DrawTimer
             // 

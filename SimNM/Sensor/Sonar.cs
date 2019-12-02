@@ -37,7 +37,7 @@ namespace SimNM.Sensor
             Distance = new SignalSet[Resolution + 1];
 
             double area = Resolution / 2;
-            double ang = 150;
+            double ang = 90;
             for (double i = -area; i <= area; i++)
             {
                 double angle = (ang * Math.PI / 180) * ((double)i / (Resolution / 2));
