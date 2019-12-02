@@ -63,7 +63,7 @@ namespace SimNM.Environment
                         g.FillRectangle(Brushes.Blue, new Rectangle(new Point(x, y), new Size(width, height)));
                     }
                     counter++;
-                } while (counter < 10 || random.NextDouble() > rho);
+                } while (counter < 1 || random.NextDouble() > rho);
             }
         }
 

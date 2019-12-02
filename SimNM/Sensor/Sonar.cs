@@ -15,7 +15,7 @@ namespace SimNM.Sensor
             public double Distance { get; set; }
         }
 
-        public double RelativeAngle { get; private set; }
+        public double RelativeAngle { get; set; }
 
         private int Resolution { get; set; }
         private double step { get; set; }
@@ -36,15 +36,17 @@ namespace SimNM.Sensor
             Location = location;
             Distance = new SignalSet[Resolution + 1];
 
-            for (int i = -Resolution / 2; i <= Resolution / 2; i++)
+            double area = Resolution / 2;
+            double ang = 150;
+            for (double i = -area; i <= area; i++)
             {
-                double angle = (Math.PI) * ((double)i / (Resolution / 2));
+                double angle = (ang * Math.PI / 180) * ((double)i / (Resolution / 2));
                 double nx, ny, dist;
                 nx = Math.Cos(angle + (RelativeAngle + 45) * Math.PI / 180);
                 ny = Math.Sin(angle + (RelativeAngle + 45) * Math.PI / 180);
                 double framedist = FrameCollision(nx, ny);
                 dist = Math.Min(framedist, WallCollision(nx, ny, framedist));
-                Distance[i + Resolution / 2] = new SignalSet() { Angle = angle, Distance = dist };
+                Distance[(int)(i + area)] = new SignalSet() { Angle = angle, Distance = dist };
             }
 
             return Distance;
@@ -85,13 +87,13 @@ namespace SimNM.Sensor
 
         public Bitmap View(Size framesize)
         {
-            double max = Environment.Background.DiagonalSize;
+            double max = Environment.Background.DiagonalSize / 2;
             Bitmap bitmap = new Bitmap(framesize.Width, framesize.Height);
             Graphics g = Graphics.FromImage(bitmap);
             int width = framesize.Width / Resolution + 1;
             for (int i = 0; i < Resolution; i++)
             {
-                byte p = (byte)(byte.MaxValue * (1 - Distance[i].Distance / max));
+                byte p = (byte)(byte.MaxValue * (1 - Math.Min(Distance[i].Distance, max) / max));
                 g.FillRectangle(new SolidBrush(Color.FromArgb(p, p, p)), i * width, 0, width, framesize.Height);
             }
             return bitmap;
