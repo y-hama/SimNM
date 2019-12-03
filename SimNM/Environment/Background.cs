@@ -45,6 +45,8 @@ namespace SimNM.Environment
                 g.FillRectangle(Brushes.Blue, new Rectangle(new Point(), size));
                 g.FillEllipse(Brushes.Black, new Rectangle(new Point(2, 2), new Size(size.Width - 4, size.Height - 4)));
 
+                g.FillEllipse(Brushes.Blue, new Rectangle(new Point(size.Width / 2 - 20, size.Width / 2 - 20), new Size(40, 40)));
+
                 int counter = 0;
                 do
                 {
@@ -70,13 +72,43 @@ namespace SimNM.Environment
         public static bool IsWall(int x, int y)
         {
             bool ret = false;
-            Color color;
-            lock (__lockobject)
+            if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
             {
-                color = source.GetPixel(x, y);
+                Color color;
+                lock (__lockobject)
+                {
+                    color = source.GetPixel(x, y);
+                }
+                if (color.B > 100) { ret = true; }
             }
-            if (color.B > 100) { ret = true; }
+            else
+            {
+                ret = true;
+            }
             return ret;
+        }
+
+        public static void GetEmptyLocation(ref PointF loc, double size)
+        {
+            Sensor.Sonar sonar = new Sensor.Sonar(360, 360);
+            Point tmp = new Point();
+            bool check = false;
+            while (!check)
+            {
+                check = true;
+                tmp.X = (int)(Size.Width * random.NextDouble());
+                tmp.Y = (int)(Size.Height * random.NextDouble());
+                sonar.Update(tmp);
+                foreach (var item in sonar.Distance)
+                {
+                    if (item.Distance < size)
+                    {
+                        check = false;
+                    }
+                }
+            }
+            loc.X = tmp.X;
+            loc.Y = tmp.Y;
         }
     }
 }

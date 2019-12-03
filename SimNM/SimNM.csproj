@@ -44,7 +44,12 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="Environment\Background.cs" />
+    <Compile Include="Instance\Body.cs" />
+    <Compile Include="Instance\Parameter\Parameter.cs" />
+    <Compile Include="Instance\WheelCar.cs" />
+    <Compile Include="Instance\GenCar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sensor\Base.cs" />
     <Compile Include="Sensor\Sonar.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

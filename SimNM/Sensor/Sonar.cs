@@ -7,46 +7,61 @@ using System.Drawing;
 
 namespace SimNM.Sensor
 {
-    public class Sonar
+    public class Sonar : Base
     {
         public class SignalSet
         {
             public double Angle { get; set; }
+            public double Digree { get { return (Angle) * Math.PI / 180; } }
             public double Distance { get; set; }
+            public new string ToString()
+            {
+                return Distance.ToString();
+            }
         }
 
         public double RelativeAngle { get; set; }
+        public double Viewing { get; set; }
+        public double RelativeDigree { get { return (RelativeAngle) * Math.PI / 180; } }
 
         private int Resolution { get; set; }
         private double step { get; set; }
 
         public SignalSet[] Distance { get; private set; }
 
-        public Point Location { get; private set; }
+        public PointF Location { get; private set; }
 
-        public Sonar(int resolution, double angle = 0)
+        public Sonar(int resolution, double viewing, double angle = 0, double locx = 0, double locy = 0)
         {
             RelativeAngle = angle;
+            Viewing = viewing / 2;
             Resolution = resolution;
             step = 360.0 / resolution;
+            Location = new PointF((float)locx, (float)locy);
+            Distance = new SignalSet[Resolution + 1];
+            for (int i = 0; i < Distance.Length; i++)
+            {
+                Distance[i] = new SignalSet();
+            }
+            Update(Location);
         }
 
-        public SignalSet[] Update(Point location)
+        public SignalSet[] Update(PointF location)
         {
             Location = location;
-            Distance = new SignalSet[Resolution + 1];
 
-            double area = Resolution / 2;
-            double ang = 90;
-            for (double i = -area; i <= area; i++)
+            int area = Resolution / 2;
+            double ang = Viewing;
+            for (int i = -area; i <= area; i++)
             {
-                double angle = (ang * Math.PI / 180) * ((double)i / (Resolution / 2));
+                double angle = (ang) * ((double)i / (area));
                 double nx, ny, dist;
-                nx = Math.Cos(angle + (RelativeAngle + 45) * Math.PI / 180);
-                ny = Math.Sin(angle + (RelativeAngle + 45) * Math.PI / 180);
+                nx = Math.Cos((angle + RelativeAngle) * Math.PI / 180);
+                ny = Math.Sin((angle + RelativeAngle) * Math.PI / 180);
                 double framedist = FrameCollision(nx, ny);
                 dist = Math.Min(framedist, WallCollision(nx, ny, framedist));
-                Distance[(int)(i + area)] = new SignalSet() { Angle = angle, Distance = dist };
+                Distance[(i + area)].Angle = angle;
+                Distance[(i + area)].Distance = dist;
             }
 
             return Distance;
@@ -87,16 +102,25 @@ namespace SimNM.Sensor
 
         public Bitmap View(Size framesize)
         {
+            int cnt = Distance.Length;
+            int width = 1;// framesize.Width / cnt + 1;
             double max = Environment.Background.DiagonalSize / 2;
-            Bitmap bitmap = new Bitmap(framesize.Width, framesize.Height);
+            Bitmap bitmap = new Bitmap(cnt, framesize.Height);
             Graphics g = Graphics.FromImage(bitmap);
-            int width = framesize.Width / Resolution + 1;
-            for (int i = 0; i < Resolution; i++)
+            g.FillRectangle(Brushes.Black, 0, 0, bitmap.Width, bitmap.Height);
+            for (int i = 0; i < cnt; i++)
             {
                 byte p = (byte)(byte.MaxValue * (1 - Math.Min(Distance[i].Distance, max) / max));
-                g.FillRectangle(new SolidBrush(Color.FromArgb(p, p, p)), i * width, 0, width, framesize.Height);
+                g.FillRectangle(new SolidBrush(Color.FromArgb(p, p, p)), i * width, framesize.Height / 4, width, framesize.Height);
+                if (i == cnt / 2)
+                {
+                    g.FillRectangle(Brushes.Red, i * width, 0, width, framesize.Height / 4);
+                }
             }
-            return bitmap;
+            Bitmap ret = new Bitmap(framesize.Width, framesize.Height);
+            Graphics gg = Graphics.FromImage(ret);
+            gg.DrawImage(bitmap, new RectangleF(0, 0, ret.Width, ret.Height));
+            return ret;
         }
     }
 }
