@@ -97,11 +97,11 @@ namespace Simulator.Forms
                     }
                     if (Config.Left)
                     {
-                        l += -0; r += 1;
+                        l += 0.25; r += 0.75;
                     }
                     if (Config.Right)
                     {
-                        l += 1; r += -0;
+                        l += 0.75; r += 0.25;
                     }
                     if (Config.RightClick || Config.LeftClick)
                     {

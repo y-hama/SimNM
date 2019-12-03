@@ -33,7 +33,7 @@ namespace SimNM.Instance
             IconColor = Color.Yellow;
             WheelRadius = Size / 2;
             Rotmax = 1;
-            Sonar = new Sensor.Sonar(180, 180, Angle, X, Y);
+            Sonar = new Sensor.Sonar(180, 355, Angle, X, Y);
         }
 
         public override void SetParam(int mode, params double[] param)
@@ -77,6 +77,7 @@ namespace SimNM.Instance
         private void Estimation()
         {
             double cX = X, cY = Y;
+            double cVx = Vx, cVy = Vy;
             if (RotL == RotR)
             {
                 double v = (RotL + RotR) / 2;
@@ -124,11 +125,12 @@ namespace SimNM.Instance
 
             }
             Vx = (X - cX); Vy = (Y - cY);
-
+            Ax = (Vx - cVx); Ay = (Vy - cVy);
         }
 
         public override void DrawIcon(Graphics g)
         {
+            Sonar.Update(new PointF((float)X, (float)Y));
             base.DrawIcon(g);
             foreach (var item in Sonar.Distance)
             {
@@ -143,7 +145,7 @@ namespace SimNM.Instance
             g.FillEllipse(new SolidBrush(IconColor), new RectangleF((float)(X - Size / 4), (float)(Y - Size / 4), (float)(Size / 2), (float)(Size / 2)));
 
             g.DrawLine(new Pen(Color.Red, 1), new PointF((float)X, (float)Y), new PointF((float)(X + Size * Vx), (float)(Y + Size * Vy)));
-
+            g.DrawLine(new Pen(Color.Cyan, 1), new PointF((float)X, (float)Y), new PointF((float)(X + Size * Ax), (float)(Y + Size * Ay)));
         }
     }
 }

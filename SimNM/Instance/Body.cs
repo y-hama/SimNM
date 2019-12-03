@@ -24,6 +24,9 @@ namespace SimNM.Instance
         public double Vx { get { return Parameter.Vx; } protected set { Parameter.Vx = value; } }
         public double Vy { get { return Parameter.Vy; } protected set { Parameter.Vy = value; } }
         public double V { get { return Parameter.V; } }
+        public double Ax { get { return Parameter.Ax; } protected set { Parameter.Ax = value; } }
+        public double Ay { get { return Parameter.Ay; } protected set { Parameter.Ay = value; } }
+        public double A { get { return Parameter.A; } }
 
         public double Inertia { get { return Parameter.Inertia; } protected set { Parameter.Inertia = value; } }
         public double Error { get { return Parameter.Error; } protected set { Parameter.Error = value; } }
