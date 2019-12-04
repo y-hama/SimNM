@@ -14,8 +14,6 @@ namespace Simulator.Forms
     {
         private bool Terminate { get; set; }
 
-        SimNM.Instance.WheelCar car { get; set; }
-
         private object __lockobject { get; set; } = new object();
         Bitmap CanvusImage { get; set; }
         Bitmap ViewImage { get; set; }
@@ -79,50 +77,50 @@ namespace Simulator.Forms
         public MainForm()
         {
             InitializeComponent();
-            car = new SimNM.Instance.WheelCar();
+
+            SimNM.Core.AddUnit(typeof(SimNM.Instance.Tracker), 5);
 
             (new Task(() =>
             {
                 double timespan = 0;
                 while (!Terminate)
                 {
-                    double l = 0, r = 0;
-                    if (Config.Up)
-                    {
-                        l += 1; r += 1;
-                    }
-                    if (Config.Down)
-                    {
-                        l -= 1; r -= 1;
-                    }
-                    if (Config.Left)
-                    {
-                        l += 0.25; r += 0.75;
-                    }
-                    if (Config.Right)
-                    {
-                        l += 0.75; r += 0.25;
-                    }
-                    if (Config.RightClick || Config.LeftClick)
-                    {
-                        if (Config.RightClick) { car.SetAngle(car.Angle + 1); }
-                        else { car.SetAngle(car.Angle - 1); }
-                    }
-                    car.SetParam(0, l, r);
+                    //double l = 0, r = 0;
+                    //if (Config.Up)
+                    //{
+                    //    l += 1; r += 1;
+                    //}
+                    //if (Config.Down)
+                    //{
+                    //    l -= 1; r -= 1;
+                    //}
+                    //if (Config.Left)
+                    //{
+                    //    l += 0.25; r += 0.75;
+                    //}
+                    //if (Config.Right)
+                    //{
+                    //    l += 0.75; r += 0.25;
+                    //}
+                    //if (Config.RightClick || Config.LeftClick)
+                    //{
+                    //    if (Config.RightClick) { car.SetAngle(car.Angle + 1); }
+                    //    else { car.SetAngle(car.Angle - 1); }
+                    //}
+                    //car.SetParam(0, l, r);
                     DateTime start = DateTime.Now;
-                    car.Observation();
-                    car.Update();
+                    SimNM.Core.DoStep();
                     double span = (DateTime.Now - start).TotalMilliseconds;
                     timespan = Math.Max(timespan, span);
 
                     lock (__lockobject)
                     {
-                        CanvusImage = SimNM.Environment.Background.Vision;
+                        var car = SimNM.Core.HeadUnit();
                         ViewImage = car.View(View.Size);
-                        car.DrawIcon(Graphics.FromImage(CanvusImage));
+                        CanvusImage = SimNM.Core.FieldImage();
                     }
 
-                    System.Threading.Thread.Sleep((int)Math.Abs(timespan - span));
+                    //System.Threading.Thread.Sleep((int)Math.Abs(timespan - span));
                 }
             })).Start();
         }
@@ -134,7 +132,6 @@ namespace Simulator.Forms
                 Canvus.Image = CanvusImage;
                 View.Image = ViewImage;
             }
-            this.Text = car.V.ToString();
             GC.Collect();
         }
 

@@ -11,6 +11,7 @@ namespace SimNM.Sensor
     {
         public class SignalSet
         {
+            public int ID { get; set; }
             public double Angle { get; set; }
             public double Digree { get { return (Angle) * Math.PI / 180; } }
             public double Distance { get; set; }
@@ -27,7 +28,19 @@ namespace SimNM.Sensor
         private int Resolution { get; set; }
         private double step { get; set; }
 
-        public SignalSet[] Distance { get; private set; }
+        public int IDArea { get { return Resolution / 2; } }
+        public List<SignalSet> Distance { get; private set; }
+        public SignalSet this[int id]
+        {
+            get
+            {
+                if (id < -IDArea || IDArea < id)
+                {
+                    return null;
+                }
+                return (Distance).Find(x => x.ID == id);
+            }
+        }
 
         public PointF Location { get; private set; }
 
@@ -38,15 +51,15 @@ namespace SimNM.Sensor
             Resolution = resolution;
             step = 360.0 / resolution;
             Location = new PointF((float)locx, (float)locy);
-            Distance = new SignalSet[Resolution + 1];
-            for (int i = 0; i < Distance.Length; i++)
+            Distance = new List<SignalSet>(new SignalSet[Resolution + 1]);
+            for (int i = 0; i < Distance.Count; i++)
             {
                 Distance[i] = new SignalSet();
             }
             Update(Location);
         }
 
-        public SignalSet[] Update(PointF location)
+        public List<SignalSet> Update(PointF location)
         {
             Location = location;
 
@@ -60,6 +73,8 @@ namespace SimNM.Sensor
                 ny = Math.Sin((angle + RelativeAngle) * Math.PI / 180);
                 double framedist = FrameCollision(nx, ny);
                 dist = Math.Min(framedist, WallCollision(nx, ny, framedist));
+                dist = Math.Min(dist, UnitCollision(nx, ny, dist));
+                Distance[(i + area)].ID = i;
                 Distance[(i + area)].Angle = angle;
                 Distance[(i + area)].Distance = dist;
             }
@@ -100,9 +115,34 @@ namespace SimNM.Sensor
             return ret;
         }
 
+        private double UnitCollision(double nx, double ny, double maxdist)
+        {
+            var units = Instance.Store.SearchOtherThanTarget(Location.X, Location.Y);
+            double ret = 0;
+            while (ret < maxdist)
+            {
+                double nnx, nny;
+                nnx = Location.X + ret * nx; nny = Location.Y + ret * ny;
+                bool check = false;
+                foreach (var item in units)
+                {
+                    if (item.DistanceTo(nnx, nny) < item.Size / 2)
+                    {
+                        check = true; break;
+                    }
+                }
+                if (check)
+                {
+                    break;
+                }
+                ret++;
+            }
+            return ret;
+        }
+
         public Bitmap View(Size framesize)
         {
-            int cnt = Distance.Length;
+            int cnt = Distance.Count;
             int width = 1;// framesize.Width / cnt + 1;
             double max = Environment.Background.DiagonalSize / 2;
             Bitmap bitmap = new Bitmap(cnt, framesize.Height);
@@ -119,6 +159,7 @@ namespace SimNM.Sensor
             }
             Bitmap ret = new Bitmap(framesize.Width, framesize.Height);
             Graphics gg = Graphics.FromImage(ret);
+            gg.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             gg.DrawImage(bitmap, new RectangleF(0, 0, ret.Width, ret.Height));
             return ret;
         }

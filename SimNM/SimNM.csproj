@@ -46,6 +46,8 @@
     <Compile Include="Environment\Background.cs" />
     <Compile Include="Instance\Body.cs" />
     <Compile Include="Instance\Parameter\Parameter.cs" />
+    <Compile Include="Instance\Store.cs" />
+    <Compile Include="Instance\Tracker.cs" />
     <Compile Include="Instance\WheelCar.cs" />
     <Compile Include="Instance\GenCar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

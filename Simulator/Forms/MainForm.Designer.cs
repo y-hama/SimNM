@@ -58,6 +58,7 @@
             // 
             // View
             // 
+            this.View.BackColor = System.Drawing.Color.Black;
             this.View.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.View.Location = new System.Drawing.Point(0, 560);
             this.View.Name = "View";

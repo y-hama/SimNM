@@ -39,6 +39,14 @@ namespace SimNM.Instance.Parameter
         public double Rotmax { get; set; }
         public double RotL { get; set; }
         public double RotR { get; set; }
+
+        public double Viewing { get; set; }
+        public int ViewingResolution { get; set; }
+        #endregion
+
+        #region Tracker
+        public double LimitArea { get; set; }
+
         #endregion
 
         #region Neural

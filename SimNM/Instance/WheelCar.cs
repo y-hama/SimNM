@@ -22,7 +22,10 @@ namespace SimNM.Instance
         private double RotNorm { get { return Math.Sqrt(RotL * RotL + RotR * RotR); } }
         public double WheelRadius { get { return Parameter.WheelSize; } protected set { Parameter.WheelSize = value; } }
 
-        public Bitmap View(Size framesize)
+        public double Viewing { get { return Parameter.Viewing; } protected set { Parameter.Viewing = value; } }
+        public int ViewingResolution { get { return Parameter.ViewingResolution; } protected set { Parameter.ViewingResolution = value; } }
+
+        public override Bitmap View(Size framesize)
         {
             return Sonar.View(framesize);
         }
@@ -31,9 +34,11 @@ namespace SimNM.Instance
         {
             base.Initialize();
             IconColor = Color.Yellow;
-            WheelRadius = Size / 2;
-            Rotmax = 1;
-            Sonar = new Sensor.Sonar(180, 355, Angle, X, Y);
+            WheelRadius = Size / 8;
+            Rotmax = Size / 10;
+            Viewing = 300;
+            ViewingResolution = 100;
+            Sonar = new Sensor.Sonar(ViewingResolution, Viewing, Angle, X, Y);
         }
 
         public override void SetParam(int mode, params double[] param)
@@ -69,7 +74,7 @@ namespace SimNM.Instance
             RotR = (Inertia) * RotR + (1 - Inertia) * (r + Error * (Parameter.Random.NextDouble() * 2 - 1));
         }
 
-        public override void Update()
+        protected override void UpdateSegment()
         {
             Estimation();
         }
@@ -130,14 +135,25 @@ namespace SimNM.Instance
 
         public override void DrawIcon(Graphics g)
         {
-            Sonar.Update(new PointF((float)X, (float)Y));
             base.DrawIcon(g);
+            //Sonar.Update(new PointF((float)X, (float)Y));
+
+            var trajectory = Trajectory.ToArray();
+            //var estimationtrajectory = EstimationTrajectory.ToArray();
+            for (int i = 1; i < trajectory.Length; i++)
+            {
+                Pen p1 = new Pen(Color.FromArgb((byte)(byte.MaxValue * (double)i / trajectory.Length), Color.PaleVioletRed));
+                g.DrawLine(p1, trajectory[i - 1], trajectory[i]);
+
+                //Pen p2 = new Pen(Color.FromArgb((byte)(byte.MaxValue * (double)i / trajectory.Length), Color.LightGreen));
+                //g.DrawLine(p2, estimationtrajectory[i - 1], estimationtrajectory[i]);
+            }
             foreach (var item in Sonar.Distance)
             {
                 float x = (float)(X + item.Distance * Math.Cos(item.Digree + Sonar.RelativeDigree));
                 float y = (float)(Y + item.Distance * Math.Sin(item.Digree + Sonar.RelativeDigree));
-                g.DrawLine(new Pen(Color.FromArgb(100, Color.Gray), 1), new PointF((float)X, (float)Y), new PointF(x, y));
-                g.FillEllipse(new SolidBrush(Color.FromArgb(50, Color.Gray)), new RectangleF((float)(x - 2), (float)(y - 2), 4, 4));
+                g.DrawLine(new Pen(Color.FromArgb(20, Color.Gray), 1), new PointF((float)X, (float)Y), new PointF(x, y));
+                g.FillEllipse(new SolidBrush(Color.FromArgb(25, Color.Gray)), new RectangleF((float)(x - 2), (float)(y - 2), 4, 4));
             }
 
             g.DrawLine(new Pen(IconColor, 1), new PointF((float)X, (float)Y), new PointF((float)(X + Size * Math.Cos(Digree)), (float)(Y + Size * Math.Sin(Digree))));

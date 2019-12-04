@@ -16,8 +16,15 @@ namespace SimNM.Instance
 
         public System.Drawing.Color IconColor { get { return Parameter.IconColor; } protected set { Parameter.IconColor = value; } }
 
+        public double InitX { get; private set; }
+        public double InitY { get; private set; }
+        //public double EstX { get; private set; }
+        //public double EstY { get; private set; }
         public double X { get { return (float)Parameter.X; } protected set { Parameter.X = value; } }
         public double Y { get { return (float)Parameter.Y; } protected set { Parameter.Y = value; } }
+        protected Queue<PointF> Trajectory { get; set; } = new Queue<PointF>();
+        //protected Queue<PointF> EstimationTrajectory { get; set; } = new Queue<PointF>();
+
         public double Angle { get { return Parameter.Angle; } protected set { Parameter.Angle = value; } }
         public double Digree { get { return (Angle) * Math.PI / 180; } }
 
@@ -31,6 +38,13 @@ namespace SimNM.Instance
         public double Inertia { get { return Parameter.Inertia; } protected set { Parameter.Inertia = value; } }
         public double Error { get { return Parameter.Error; } protected set { Parameter.Error = value; } }
 
+        public double DistanceTo(double locx, double locy)
+        {
+            return Math.Sqrt(Math.Pow((X - locx), 2) + Math.Pow((Y - locy), 2));
+        }
+
+        public abstract Bitmap View(Size framesize);
+
         public Body()
         {
             Initialize();
@@ -42,12 +56,12 @@ namespace SimNM.Instance
 
             PointF loc = new PointF();
             Environment.Background.GetEmptyLocation(ref loc, Size);
-            X = loc.X;
-            Y = loc.Y;
+            X = InitX = loc.X;
+            Y = InitY = loc.Y;
 
             Angle = 360 * Parameter.Random.NextDouble();
             Inertia = 0.5;
-            Error = 0.005;
+            Error = 0;
         }
 
         public void SetLcoation(Point p)
@@ -73,9 +87,26 @@ namespace SimNM.Instance
             g.DrawEllipse(new Pen(IconColor, 1), new RectangleF((float)(X - Size / 2), (float)(Y - Size / 2), (float)(Size), (float)(Size)));
         }
 
+        public void Update()
+        {
+            UpdateSegment();
+            //EstX += Vx; EstY += Vy;
+
+            Trajectory.Enqueue(new PointF((float)X, (float)Y));
+            if (Trajectory.Count > 100)
+            {
+                Trajectory.Dequeue();
+            }
+            //EstimationTrajectory.Enqueue(new PointF((float)(InitX + EstX), (float)(InitY + EstY)));
+            //if (EstimationTrajectory.Count > 100)
+            //{
+            //    EstimationTrajectory.Dequeue();
+            //}
+        }
+
         public abstract void SetParam(int mode, params double[] param);
 
         public abstract void Observation();
-        public abstract void Update();
+        protected abstract void UpdateSegment();
     }
 }

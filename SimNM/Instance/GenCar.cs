@@ -17,8 +17,7 @@ namespace SimNM.Instance
 
         protected override void WheelRotationAmountCalculation(ref double l, ref double r)
         {
-
-            
+                        
         }
     }
 }

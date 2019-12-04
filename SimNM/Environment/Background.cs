@@ -45,7 +45,8 @@ namespace SimNM.Environment
                 g.FillRectangle(Brushes.Blue, new Rectangle(new Point(), size));
                 g.FillEllipse(Brushes.Black, new Rectangle(new Point(2, 2), new Size(size.Width - 4, size.Height - 4)));
 
-                g.FillEllipse(Brushes.Blue, new Rectangle(new Point(size.Width / 2 - 20, size.Width / 2 - 20), new Size(40, 40)));
+                int s = (size.Width + size.Height) / 40;
+                g.FillEllipse(Brushes.Blue, new Rectangle(new Point(size.Width / 2 - s / 2, size.Width / 2 - s / 2), new Size(s, s)));
 
                 int counter = 0;
                 do
